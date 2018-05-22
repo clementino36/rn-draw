@@ -1,6 +1,6 @@
 import React from 'react'
-import { View, PanResponder, StyleSheet, Platform} from 'react-native'
-import Svg, { G, Surface, Path} from 'react-native-svg';
+import { View, PanResponder, StyleSheet, Platform } from 'react-native'
+import Svg, { G, Surface, Path } from 'react-native-svg';
 import Pen from '../tools/pen'
 import Point from '../tools/point'
 const {OS} = Platform
@@ -62,6 +62,8 @@ export default class Whiteboard extends React.Component {
       y,
       timestamp
     [x, y, timestamp] = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp]
+    console.log(evt)
+    console.log(evt.nativeEvent)
     let newPoint = new Point(x, y, timestamp)
     let newCurrentPoints = this.state.currentPoints
     newCurrentPoints.push(newPoint)
@@ -110,7 +112,7 @@ export default class Whiteboard extends React.Component {
     return (
       <View
             onLayout={ this._onLayoutContainer }
-            style={ [ styles.drawContainer, this.props.containerStyle, ] }>
+            style={ [styles.drawContainer, this.props.containerStyle,] }>
         <View
               style={ styles.svgContainer }
               {...this._panResponder.panHandlers}>
