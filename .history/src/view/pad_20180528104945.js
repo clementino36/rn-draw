@@ -137,7 +137,7 @@ export default class Whiteboard extends React.Component {
     })
   }
   _onChangeStrokes = (strokes) => {
-    if (this.props.onChangeStrokes && strokes.length > 0) {
+    if (this.props.onChangeStrokes) {
       this.props.onChangeStrokes(strokes);
     }
   }
