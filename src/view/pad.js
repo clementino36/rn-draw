@@ -1,24 +1,25 @@
-import React from 'react'
-import { View, PanResponder, StyleSheet, Platform } from 'react-native'
-import Svg, { G, Surface, Path } from 'react-native-svg';
-import Pen from '../tools/pen'
-import Point from '../tools/point'
-import humps from 'humps'
-const {OS} = Platform
+import { Svg } from 'expo';
+import React from 'react';
+import { PanResponder, Platform, StyleSheet, View } from 'react-native';
+const { G, Surface, Path } = Svg;
+import humps from 'humps';
+import Pen from '../tools/pen';
+import Point from '../tools/point';
+const { OS } = Platform;
 // import Bezier from '../tools/bezier'
-// 
+//
 export const convertStrokesToSvg = (strokes, layout = {}) => {
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" version="1.1">
       <g>
         ${strokes.map(e => {
-          return `<${e.type.toLowerCase()} ${Object.keys(e.attributes).map(a => {
-            return `${humps.decamelize(a, {separator: '-'})}="${e.attributes[a]}"`
-          }).join(' ')}/>`
-        }).join('\n')}
+      return `<${e.type.toLowerCase()} ${Object.keys(e.attributes).map(a => {
+        return `${humps.decamelize(a, { separator: '-' })}="${e.attributes[a]}"`;
+      }).join(' ')}/>`;
+    }).join('\n')}
       </g>
-    </svg>`
-}
+    </svg>`;
+};
 export default class Whiteboard extends React.Component {
 
   constructor(props, context) {
@@ -29,21 +30,21 @@ export default class Whiteboard extends React.Component {
       previousStrokes: this.props.strokes || [],
       newStroke: [],
       pen: new Pen(),
-    }
+    };
 
     this._panResponder = PanResponder.create({
       onStartShouldSetPanResponder: (evt, gs) => true,
       onMoveShouldSetPanResponder: (evt, gs) => true,
       onPanResponderGrant: (evt, gs) => this.onResponderGrant(evt, gs),
       onPanResponderMove: (evt, gs) => this.onResponderMove(evt, gs),
-      onPanResponderRelease: (evt, gs) => this.onResponderRelease(evt, gs)
-    })
-    const rewind = props.rewind || function() {}
-    const clear = props.clear || function() {}
+      onPanResponderRelease: (evt, gs) => this.onResponderRelease(evt, gs),
+    });
+    const rewind = props.rewind || function() { };
+    const clear = props.clear || function() { };
     this._clientEvents = {
       rewind: rewind(this.rewind),
       clear: clear(this.clear),
-    }
+    };
 
   }
   componentWillReceiveProps(newProps) {
@@ -56,18 +57,18 @@ export default class Whiteboard extends React.Component {
   }
 
   rewind = () => {
-    if (this.state.currentPoints.length > 0 || this.state.previousStrokes.length < 1) return
-    let strokes = this.state.previousStrokes
-    strokes.pop()
+    if (this.state.currentPoints.length > 0 || this.state.previousStrokes.length < 1) { return; }
+    let strokes = this.state.previousStrokes;
+    strokes.pop();
 
-    this.state.pen.rewindStroke()
+    this.state.pen.rewindStroke();
 
     this.setState({
       previousStrokes: [...strokes],
       currentPoints: [],
     }, () => {
       this._onChangeStrokes([...strokes]);
-    })
+    });
   }
 
   clear = () => {
@@ -77,24 +78,24 @@ export default class Whiteboard extends React.Component {
       newStroke: [],
     }, () => {
       this._onChangeStrokes([]);
-    })
-    this.state.pen.clear()
+    });
+    this.state.pen.clear();
   }
 
   onTouch(evt) {
     let x,
       y,
-      timestamp
-    [x, y, timestamp] = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp]
-    let newPoint = new Point(x, y, timestamp)
-    let newCurrentPoints = this.state.currentPoints
-    newCurrentPoints.push(newPoint)
+      timestamp;
+    [x, y, timestamp] = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp];
+    let newPoint = new Point(x, y, timestamp);
+    let newCurrentPoints = this.state.currentPoints;
+    newCurrentPoints.push(newPoint);
 
     this.setState({
       previousStrokes: this.state.previousStrokes,
       currentPoints: newCurrentPoints,
-      tracker: this.state.tracker
-    })
+      tracker: this.state.tracker,
+    });
   }
 
   onResponderGrant(evt) {
@@ -106,8 +107,8 @@ export default class Whiteboard extends React.Component {
   }
 
   onResponderRelease() {
-    let strokes = this.state.previousStrokes
-    if (this.state.currentPoints.length < 1) return
+    let strokes = this.state.previousStrokes;
+    if (this.state.currentPoints.length < 1) { return; }
     let points = this.state.currentPoints;
     if (points.length === 1) {
       let p = points[0];
@@ -121,20 +122,20 @@ export default class Whiteboard extends React.Component {
         d: this.state.pen.pointsToSvg(points),
         stroke: (this.props.color || '#000000'),
         strokeWidth: (this.props.strokeWidth || 4),
-        fill: "none",
-        strokeLinecap: "round",
-        strokeLinejoin: "round"
-      }
-    }
+        fill: 'none',
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+      },
+    };
 
-    this.state.pen.addStroke(points)
+    this.state.pen.addStroke(points);
 
     this.setState({
       previousStrokes: [...this.state.previousStrokes, newElement],
       currentPoints: [],
     }, () => {
       this._onChangeStrokes(this.state.previousStrokes);
-    })
+    });
   }
   _onChangeStrokes = (strokes) => {
     if (this.props.onChangeStrokes && strokes.length > 0) {
@@ -149,10 +150,10 @@ export default class Whiteboard extends React.Component {
   _renderSvgElement = (e, tracker) => {
     if (e.type === 'Path') {
       return <Path
-                   {...e.attributes}
-                   key={ tracker } />
+        {...e.attributes}
+        key={tracker} />;
     }
-    return null
+    return null;
   }
 
   exportToSVG = () => {
@@ -163,30 +164,30 @@ export default class Whiteboard extends React.Component {
   render() {
     return (
       <View
-            onLayout={ this._onLayoutContainer }
-            style={ [styles.drawContainer, this.props.containerStyle,] }>
+        onLayout={this._onLayoutContainer}
+        style={[styles.drawContainer, this.props.containerStyle]}>
         <View
-              style={ styles.svgContainer }
-              {...this._panResponder.panHandlers}>
-          <Svg style={ styles.drawSurface }>
+          style={styles.svgContainer}
+          {...this._panResponder.panHandlers}>
+          <Svg style={styles.drawSurface}>
             <G>
-              { this.state.previousStrokes.map((stroke, index) => {
-                  return this._renderSvgElement(stroke, index)
-                }) }
+              {this.state.previousStrokes.map((stroke, index) => {
+                return this._renderSvgElement(stroke, index);
+              })}
               <Path
-                    key={ this.state.tracker }
-                    d={ this.state.pen.pointsToSvg(this.state.currentPoints) }
-                    stroke={ this.props.color || "#000000" }
-                    strokeWidth={ this.props.strokeWidth || 4 }
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round" />
+                key={this.state.tracker}
+                d={this.state.pen.pointsToSvg(this.state.currentPoints)}
+                stroke={this.props.color || '#000000'}
+                strokeWidth={this.props.strokeWidth || 4}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round" />
             </G>
           </Svg>
-          { this.props.children }
+          {this.props.children}
         </View>
       </View>
-    )
+    );
   }
 }
 
@@ -201,4 +202,4 @@ let styles = StyleSheet.create({
   drawSurface: {
     flex: 1,
   },
-})
+});
